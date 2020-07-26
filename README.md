@@ -12,8 +12,8 @@ Extract all to `AddonsDir/IronmanChecker`
 
 - [x] [basic gear check](https://user-images.githubusercontent.com/302375/88485567-b8994680-cf44-11ea-87c8-7a5ad70a5445.png)
 - [ ] check deaths (with counter)
-- [ ] check talents
-- [ ] check professions
+- [x] check talents
+- [x] check professions
 - [ ] check gear enchant etc
 - [ ] check external buffs (no other player buffs, no food buffs)
 - [ ] check grouped status

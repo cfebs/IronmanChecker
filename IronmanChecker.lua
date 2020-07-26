@@ -1,6 +1,6 @@
-util = {}
+local util = {}
 
-function util.check_all()
+function util.check_gear()
     local QUALITY_COMMON = 1
     local SLOTS = {
         "AmmoSlot",
@@ -23,7 +23,7 @@ function util.check_all()
         "WaistSlot",
         "WristSlot",
     }
-    print('Starting check...')
+    print('>> Starting gear check...')
 
     for _, slot_name in ipairs(SLOTS) do
         print('Checking:' .. slot_name)
@@ -34,6 +34,55 @@ function util.check_all()
             print('ERROR:' .. slot_name .. ' has quality ' .. quality_idx)
         end
     end
+end
+
+function util.check_talents()
+    print('>> Starting talent check...')
+    local total_talents = 0
+    local num_tabs = GetNumTalentTabs()
+
+    for i = 1, GetNumTalentTabs() do
+        local name, _, pointsSpent = GetTalentTabInfo(i, false, false)
+        total_talents = total_talents + pointsSpent
+    end
+
+    if total_talents == 0 then
+        print('OK: no talents learned')
+    end
+    print('ERROR: ' .. total_talents .. ' talents learned')
+end
+
+function util.check_professions()
+    local bad_skills = {
+        ["Alchemy"] = 1,
+        ["Blacksmithing"] = 1,
+        ["Enchanting"] = 1,
+        ["Engineering"] = 1,
+        ["Herbalism"] = 1,
+        ["Inscription"] = 1,
+        ["Jewelcrafting"] = 1,
+        ["Leatherworking"] = 1,
+        ["Mining"] = 1,
+        ["Skinning"] = 1,
+        ["Tailoring"] = 1,
+        --
+        ["Fishing"] = 1,
+        ["Cooking"] = 1,
+    }
+
+    local num_skills = GetNumSkillLines()
+    for i = 1, num_skills do
+        local skill, is_header = GetSkillLineInfo(i);
+        if not is_header then
+            if bad_skills[skill] == 1 then
+                print('ERROR: found bad profession: ' .. skill)
+                return false
+            end
+        end
+    end
+
+    print('OK: professions')
+    return true
 end
 
 -- check slot on target, if quality idx > max_quality return false
@@ -54,6 +103,12 @@ function util.check_max_quality(slot_str, max_quality, target)
     end
 
     return true, nil, item_id
+end
+
+function util.check_all()
+    util.check_gear()
+    util.check_talents()
+    util.check_professions()
 end
 
 SLASH_IRONCHECK1 = "/ironmanchecker"
