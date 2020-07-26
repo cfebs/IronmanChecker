@@ -1,0 +1,10 @@
+## Interface: 11305
+## Title: Ironman Checker
+## Author: limb0king
+## Notes: Checks the state of items, buffs etc to ensure obeying ironman rules
+## Version: 0.1.0
+## RequiredDeps:
+## SavedVariablesPerCharacter: IronmanCheckerDB
+
+IronmanChecker.xml
+IronmanChecker.lua
