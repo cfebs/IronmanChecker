@@ -15,8 +15,9 @@ Extract all to `AddonsDir/IronmanChecker`
 - [x] check talents
 - [x] check professions
 - [ ] check gear enchant etc
-- [ ] check external buffs (no other player buffs, no food buffs)
+- [x] check external buffs (no other player buffs, no food buffs)
 - [ ] check grouped status
 - [ ] a UI
 - [ ] run check on login
 - [ ] run check when new gear equip
+- [ ] pet talents

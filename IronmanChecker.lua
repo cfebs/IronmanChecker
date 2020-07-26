@@ -53,6 +53,7 @@ function util.check_talents()
 end
 
 function util.check_professions()
+    print('>> Starting profession check...')
     local bad_skills = {
         ["Alchemy"] = 1,
         ["Blacksmithing"] = 1,
@@ -105,10 +106,51 @@ function util.check_max_quality(slot_str, max_quality, target)
     return true, nil, item_id
 end
 
+function util.check_aura()
+    print('>> Starting aura check...')
+    local player_applied = {}
+    local all_helpful = {}
+
+    -- get all helpful but cancelable
+    print('-- All helpful')
+    for i=1, 40 do
+        local aura_name = UnitAura("player", i, "HELPFUL|CANCELABLE")
+        if aura_name == nil then
+            break
+        end
+        print('  ' .. aura_name)
+        all_helpful[aura_name] = 1
+    end
+
+    -- remove those the player casted
+    print('-- Player casted')
+    for i=1, 40 do
+        local aura_name = UnitAura("player", i, "PLAYER|HELPFUL|CANCELABLE")
+        if aura_name == nil then
+            break
+        end
+
+        print('  ' .. aura_name)
+        all_helpful[aura_name] = 0
+    end
+
+    total_helpful = 0
+    for k, v in pairs(all_helpful) do
+        if v == 1 then
+            print('ERROR: found helpful cancelable buff not casted by player: ' .. k)
+            return false
+        end
+    end
+
+    print('OK: auras')
+    return true
+end
+
 function util.check_all()
     util.check_gear()
     util.check_talents()
     util.check_professions()
+    util.check_aura()
 end
 
 SLASH_IRONCHECK1 = "/ironmanchecker"
