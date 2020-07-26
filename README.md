@@ -10,7 +10,7 @@ Extract all to `AddonsDir/IronmanChecker`
 
 ## TODO
 
-- [x] basic gear check
+- [x] [basic gear check](https://user-images.githubusercontent.com/302375/88485567-b8994680-cf44-11ea-87c8-7a5ad70a5445.png)
 - [ ] check deaths (with counter)
 - [ ] check talents
 - [ ] check professions
