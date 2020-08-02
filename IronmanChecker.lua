@@ -86,6 +86,7 @@ end
 
 local util = {}
 
+-- return: bool, msg|nil
 function util.check_gear()
     local QUALITY_COMMON = 1
     local SLOTS = {
@@ -118,10 +119,14 @@ function util.check_gear()
             print('OK:' .. slot_name)
         else
             print('ERROR:' .. slot_name .. ' has quality ' .. quality_idx)
+            return false, slot_name .. ' has quality ' .. quality_idx
         end
     end
+
+    return true, nil
 end
 
+-- return bool, msg|nil
 function util.check_talents()
     print('>> Starting talent check...')
     local total_talents = 0
@@ -134,8 +139,11 @@ function util.check_talents()
 
     if total_talents == 0 then
         print('OK: no talents learned')
+        return true, nil
     end
     print('ERROR: ' .. total_talents .. ' talents learned')
+
+    return false, total_talents .. ' talents learned'
 end
 
 function util.check_professions()
@@ -163,13 +171,13 @@ function util.check_professions()
         if not is_header then
             if bad_skills[skill] == 1 then
                 print('ERROR: found bad profession: ' .. skill)
-                return false
+                return false, 'found bad profession: ' .. skill
             end
         end
     end
 
     print('OK: professions')
-    return true
+    return true, nil
 end
 
 -- check slot on target, if quality idx > max_quality return false
@@ -224,24 +232,54 @@ function util.check_aura()
     for k, v in pairs(all_helpful) do
         if v == 1 then
             print('ERROR: found helpful cancelable buff not casted by player: ' .. k)
-            return false
+            return false, 'found helpful cancelable buff not casted by player: ' .. k
         end
     end
 
     print('OK: auras')
-    return true
+    return true, nil
 end
 
 function util.check_all()
-    util.check_gear()
-    util.check_talents()
-    util.check_professions()
-    util.check_aura()
+    local full_out = ''
+    local failures = 0
+    local result = true
+    local msg = ''
+
+    result, msg = util.check_gear()
+    if not result then
+        failures = failures + 1
+        full_out = full_out .. "[FAIL] Gear check: " .. msg .. "\n"
+    end
+
+    result, msg = util.check_talents()
+    if not result then
+        failures = failures + 1
+        full_out = full_out .. "[FAIL] Talent check: " .. msg .. "\n"
+    end
+
+    result, msg = util.check_professions()
+    if not result then
+        failures = failures + 1
+        full_out = full_out .. "[FAIL] Profession check: " .. msg .. "\n"
+    end
+
+    result, msg = util.check_aura()
+    if not result then
+        failures = failures + 1
+        full_out = full_out .. "[FAIL] Aura check " .. msg .. "\n"
+    end
+
+    if failures > 0 then
+        IronmanChecker_ShowFrame(full_out)
+        return
+    end
+
+    IronmanChecker_ShowFrame('All good')
 end
 
 SLASH_IRONCHECK1 = "/ironmanchecker"
 SLASH_IRONCHECK2 = "/ironcheck"
 SlashCmdList["IRONCHECK"] = function(self, txt)
-    IronmanChecker_ShowFrame('wassssup')
-    -- util.check_all()
+    util.check_all()
 end
