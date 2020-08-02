@@ -6,5 +6,5 @@
 ## RequiredDeps:
 ## SavedVariablesPerCharacter: IronmanCheckerDB
 
-IronmanChecker.xml
 IronmanChecker.lua
+IronmanChecker.xml

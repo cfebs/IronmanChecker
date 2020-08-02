@@ -1,3 +1,8 @@
+function IronmanChecker_OnLoad(self)
+    print('Ironman checker loaded')
+    print(self)
+end
+
 local util = {}
 
 function util.check_gear()
