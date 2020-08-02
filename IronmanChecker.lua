@@ -297,7 +297,6 @@ function IronmanChecker_CreateFrame()
 
     -- On addon load: init slash checks and data
     local initDB = function()
-        print('INIT DB')
         IronmanCheckerDB = {}
         IronmanCheckerDB["Debug"] = false
         IronmanCheckerDB["DeathCount"] = 0
