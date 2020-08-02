@@ -3,6 +3,87 @@ function IronmanChecker_OnLoad(self)
     print(self)
 end
 
+-- creates frame if doesn't exist, does not show frame
+-- return: frame, editbox
+function IronmanChecker_CreateFrame()
+    if IronmanCheckerEditBox then
+        return IronmanCheckerEditBox, IronmanCheckerEditBoxEditBox
+    end
+
+    -- Example from: https://www.wowinterface.com/forums/showpost.php?p=336114&postcount=5
+    local f = CreateFrame("Frame", "IronmanCheckerEditBox", UIParent, "DialogBoxFrame")
+    f:SetPoint("CENTER")
+    f:SetSize(600, 300)
+
+    f:SetBackdrop({
+        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+        edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight", -- this one is neat
+        edgeSize = 16,
+        insets = { left = 8, right = 6, top = 8, bottom = 8 },
+    })
+    f:SetBackdropBorderColor(0, .44, .87, 0.5) -- darkblue
+
+    -- Movable
+    f:SetMovable(true)
+    f:SetClampedToScreen(true)
+    f:SetScript("OnMouseDown", function(self, button)
+        if button == "LeftButton" then
+            self:StartMoving()
+        end
+    end)
+    f:SetScript("OnMouseUp", f.StopMovingOrSizing)
+
+    -- ScrollFrame
+    local sf = CreateFrame("ScrollFrame", "IronmanCheckerEditBoxScrollFrame", IronmanCheckerEditBox, "UIPanelScrollFrameTemplate")
+    sf:SetPoint("LEFT", 16, 0)
+    sf:SetPoint("RIGHT", -32, 0)
+    sf:SetPoint("TOP", 0, -16)
+    sf:SetPoint("BOTTOM", IronmanCheckerEditBoxButton, "TOP", 0, 0)
+
+    -- EditBox
+    local eb = CreateFrame("EditBox", "IronmanCheckerEditBoxEditBox", IronmanCheckerEditBoxScrollFrame)
+    eb:SetSize(sf:GetSize())
+    eb:SetMultiLine(true)
+    eb:SetAutoFocus(false) -- dont automatically focus
+    eb:SetFontObject("ChatFontNormal")
+    eb:SetScript("OnEscapePressed", function() f:Hide() end)
+    sf:SetScrollChild(eb)
+
+    -- Resizable
+    f:SetResizable(true)
+    f:SetMinResize(150, 100)
+
+    local rb = CreateFrame("Button", "IronmanCheckerEditBoxResizeButton", IronmanCheckerEditBox)
+    rb:SetPoint("BOTTOMRIGHT", -6, 7)
+    rb:SetSize(16, 16)
+
+    rb:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
+    rb:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
+    rb:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
+
+    rb:SetScript("OnMouseDown", function(self, button)
+        if button == "LeftButton" then
+            f:StartSizing("BOTTOMRIGHT")
+            self:GetHighlightTexture():Hide() -- more noticeable
+        end
+    end)
+    rb:SetScript("OnMouseUp", function(self, button)
+        f:StopMovingOrSizing()
+        self:GetHighlightTexture():Show()
+        eb:SetWidth(sf:GetWidth())
+    end)
+
+    return f, eb
+end
+
+function IronmanChecker_ShowFrame(text)
+    local frame, editbox = IronmanChecker_CreateFrame()
+    if text then
+        editbox:SetText(text)
+    end
+    frame:Show()
+end
+
 local util = {}
 
 function util.check_gear()
@@ -161,5 +242,6 @@ end
 SLASH_IRONCHECK1 = "/ironmanchecker"
 SLASH_IRONCHECK2 = "/ironcheck"
 SlashCmdList["IRONCHECK"] = function(self, txt)
-    util.check_all()
+    IronmanChecker_ShowFrame('wassssup')
+    -- util.check_all()
 end

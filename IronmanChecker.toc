@@ -7,4 +7,3 @@
 ## SavedVariablesPerCharacter: IronmanCheckerDB
 
 IronmanChecker.lua
-IronmanChecker.xml
