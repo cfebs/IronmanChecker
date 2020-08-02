@@ -14,10 +14,11 @@ Extract all to `AddonsDir/IronmanChecker`
 - [x] check talents
 - [x] check professions
 - [x] check external buffs (no other player buffs, no food buffs)
-- [ ] check deaths (with counter)
+- [x] check deaths (with counter)
+- [x] a UI
+- [x] run check on login
+- [ ] run check when new gear equip
+- [ ] check if deaths are counted if you DC and then die
 - [ ] check gear enchant etc
 - [ ] check grouped status
-- [ ] a UI
-- [ ] run check on login
-- [ ] run check when new gear equip
 - [ ] pet talents
