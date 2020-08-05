@@ -1,3 +1,7 @@
+IronmanChecker_Init = false
+IronmanChecker_UpdateInterval = 15
+IronmanChecker_LastUpdate = 0
+
 IronmanChecker_Util = {}
 
 function IronmanChecker_Util.debug(str)
@@ -182,10 +186,15 @@ function IronmanChecker_Util:check_death()
 end
 
 function IronmanChecker_Util.check_all()
+    -- over all checks
     local full_out = ''
     local failures = 0
+
+    -- per check
     local result = true
     local msg = ''
+
+    full_out = full_out .. 'Ironcheck at ' .. date() .. "\n"
 
     result, msg = IronmanChecker_Util:check_death()
     if not result then
@@ -222,7 +231,7 @@ function IronmanChecker_Util.check_all()
         return
     end
 
-    IronmanChecker_ShowFrame('All good')
+    IronmanChecker_ShowFrame(full_out .. 'All good')
 end
 
 -- creates frame if doesn't exist, does not show frame
@@ -231,6 +240,11 @@ function IronmanChecker_CreateFrame()
     if IronmanCheckerEditBox then
         return IronmanCheckerEditBox, IronmanCheckerEditBoxEditBox
     end
+
+    local timerFrame = CreateFrame("Frame", "IronmanCheckerTimer", UIParent)
+    timerFrame:SetSize(0, 0)
+    timerFrame:SetPoint("BOTTOM")
+    timerFrame:Show()
 
     -- Example from: https://www.wowinterface.com/forums/showpost.php?p=336114&postcount=5
     local f = CreateFrame("Frame", "IronmanCheckerEditBox", UIParent, "DialogBoxFrame")
@@ -302,19 +316,15 @@ function IronmanChecker_CreateFrame()
         IronmanCheckerDB["DeathCount"] = 0
     end
 
-    local init = function()
-        if not IronmanCheckerDB then
-            initDb()
-        end
+    local slashUsage = function()
+        print('Usage: /ironcheck [check||debug||reset||help]')
+        print('  check: performs ironman checks')
+        print('  debug: toggles debug messages')
+        print('  reset: resets stored data (death count etc)')
+        print('  help: displays this help')
+    end
 
-        local slashUsage = function()
-            print('Usage: /ironcheck [check||debug||reset||help]')
-            print('  check: performs ironman checks')
-            print('  debug: toggles debug messages')
-            print('  reset: resets stored data (death count etc)')
-            print('  help: displays this help')
-        end
-
+    local registerSlash = function()
         SLASH_IRONCHECK1 = "/ironmanchecker"
         SLASH_IRONCHECK2 = "/ironcheck"
         SlashCmdList["IRONCHECK"] = function(msg)
@@ -349,21 +359,32 @@ function IronmanChecker_CreateFrame()
             print('Command not found')
             slashUsage()
         end
+
+    end
+
+    -- call this on login
+    local init = function()
+        print('Ironcheck init')
+        if not IronmanCheckerDB then
+            initDb()
+        end
+
+        registerSlash()
+
+        IronmanChecker_Init = true
     end
 
     local eventHandlers = {}
     function eventHandlers:PLAYER_DEAD(event)
         IronmanCheckerDB["DeathCount"] = IronmanCheckerDB["DeathCount"] + 1
-
-        -- recheck on death
+        -- check again on death
         IronmanChecker_Util.check_all()
     end
 
     function eventHandlers:PLAYER_LOGIN(event)
         f:UnregisterEvent("PLAYER_LOGIN")
         init()
-
-        -- first check on load
+        -- first check on login
         IronmanChecker_Util.check_all()
     end
 
@@ -376,9 +397,24 @@ function IronmanChecker_CreateFrame()
         end
     end
 
+    local function onLoopHandler(self, elapsed)
+        if not IronmanChecker_Init then
+            return
+        end
+
+        IronmanChecker_LastUpdate = IronmanChecker_LastUpdate + elapsed;
+        if (IronmanChecker_LastUpdate > IronmanChecker_UpdateInterval) then
+            -- on update interval
+            IronmanChecker_Util.check_all()
+            IronmanChecker_LastUpdate = 0;
+        end
+    end
+
     f:RegisterEvent("PLAYER_DEAD");
     f:RegisterEvent("PLAYER_LOGIN");
     f:SetScript("OnEvent", parentHandler);
+
+    timerFrame:SetScript('OnUpdate', onLoopHandler)
 
     return f, eb
 end

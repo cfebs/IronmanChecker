@@ -6,7 +6,18 @@ Extract all to `AddonsDir/IronmanChecker`
 
 ## Usage
 
-`/ironcheck`
+Checks should start running every 15s
+
+Slash command usage:
+
+```
+Usage: /ironcheck [check||debug||reset||help]
+  check: performs ironman checks
+  debug: toggles debug messages
+  reset: resets stored data (death count etc)
+  help: displays this help
+```
+
 
 ## TODO
 
@@ -17,6 +28,7 @@ Extract all to `AddonsDir/IronmanChecker`
 - [x] check deaths (with counter)
 - [x] a UI
 - [x] run check on login
+- [x] run check on loop
 - [ ] run check when new gear equip
 - [ ] check if deaths are counted if you DC and then die
 - [ ] check gear enchant etc
