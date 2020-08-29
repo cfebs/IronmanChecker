@@ -1,6 +1,9 @@
 IronmanChecker_Init = false
 IronmanChecker_UpdateInterval = 15
 IronmanChecker_LastUpdate = 0
+IronmanCheckerEditBox = nil
+IronmanCheckerEditBoxEditBox = nil
+IronmanCheckerEditBoxScrollFrame = nil
 
 IronmanChecker_Util = {}
 
@@ -44,7 +47,7 @@ function IronmanChecker_Util:check_gear()
 
     for _, slot_name in ipairs(SLOTS) do
         self.debug('Checking:' .. slot_name)
-        local result, quality_idx, item_id = IronmanChecker_Util.check_max_quality(slot_name, QUALITY_COMMON)
+        local result, quality_idx, _ = IronmanChecker_Util.check_max_quality(slot_name, QUALITY_COMMON)
         if result then
             self.debug('OK:' .. slot_name)
         else
@@ -60,10 +63,9 @@ end
 function IronmanChecker_Util:check_talents()
     self.debug('>> Starting talent check...')
     local total_talents = 0
-    local num_tabs = GetNumTalentTabs()
 
     for i = 1, GetNumTalentTabs() do
-        local name, _, pointsSpent = GetTalentTabInfo(i, false, false)
+        local _, _, pointsSpent = GetTalentTabInfo(i, false, false)
         total_talents = total_talents + pointsSpent
     end
 
@@ -132,7 +134,6 @@ end
 
 function IronmanChecker_Util:check_aura()
     self.debug('>> Starting aura check...')
-    local player_applied = {}
     local all_helpful = {}
 
     -- get all helpful but cancelable
@@ -158,7 +159,6 @@ function IronmanChecker_Util:check_aura()
         all_helpful[aura_name] = 0
     end
 
-    total_helpful = 0
     for k, v in pairs(all_helpful) do
         if v == 1 then
             self.debug('ERROR: found helpful cancelable buff not casted by player: ' .. k)
@@ -270,11 +270,13 @@ function IronmanChecker_CreateFrame()
     f:SetScript("OnMouseUp", f.StopMovingOrSizing)
 
     -- ScrollFrame
-    local sf = CreateFrame("ScrollFrame", "IronmanCheckerEditBoxScrollFrame", IronmanCheckerEditBox, "UIPanelScrollFrameTemplate")
+    local sf = CreateFrame("ScrollFrame", "IronmanCheckerEditBoxScrollFrame",
+        IronmanCheckerEditBox, "UIPanelScrollFrameTemplate")
+
     sf:SetPoint("LEFT", 16, 0)
     sf:SetPoint("RIGHT", -32, 0)
     sf:SetPoint("TOP", 0, -16)
-    sf:SetPoint("BOTTOM", IronmanCheckerEditBoxButton, "TOP", 0, 0)
+    -- TODO sf:SetPoint("BOTTOM", IronmanCheckerEditBoxButton, "TOP", 0, 0)
 
     -- EditBox
     local eb = CreateFrame("EditBox", "IronmanCheckerEditBoxEditBox", IronmanCheckerEditBoxScrollFrame)
@@ -303,7 +305,8 @@ function IronmanChecker_CreateFrame()
             self:GetHighlightTexture():Hide() -- more noticeable
         end
     end)
-    rb:SetScript("OnMouseUp", function(self, button)
+
+    rb:SetScript("OnMouseUp", function(self)
         f:StopMovingOrSizing()
         self:GetHighlightTexture():Show()
         eb:SetWidth(sf:GetWidth())
@@ -366,7 +369,7 @@ function IronmanChecker_CreateFrame()
     local init = function()
         print('Ironcheck init')
         if not IronmanCheckerDB then
-            initDb()
+            initDB()
         end
 
         registerSlash()
@@ -375,13 +378,13 @@ function IronmanChecker_CreateFrame()
     end
 
     local eventHandlers = {}
-    function eventHandlers:PLAYER_DEAD(event)
+    function eventHandlers.PLAYER_DEAD()
         IronmanCheckerDB["DeathCount"] = IronmanCheckerDB["DeathCount"] + 1
         -- check again on death
         IronmanChecker_Util.check_all()
     end
 
-    function eventHandlers:PLAYER_LOGIN(event)
+    function eventHandlers.PLAYER_LOGIN()
         f:UnregisterEvent("PLAYER_LOGIN")
         init()
         -- first check on login
@@ -389,7 +392,7 @@ function IronmanChecker_CreateFrame()
     end
 
 
-    local function parentHandler(self, event)
+    local function parentHandler(_, event)
         -- print('Got event: ' .. event)
         if eventHandlers[event] then
             -- print('Calling handler: ' .. event)
@@ -397,7 +400,7 @@ function IronmanChecker_CreateFrame()
         end
     end
 
-    local function onLoopHandler(self, elapsed)
+    local function onLoopHandler(_, elapsed)
         if not IronmanChecker_Init then
             return
         end
@@ -426,6 +429,5 @@ function IronmanChecker_ShowFrame(text)
     end
     frame:Show()
 end
-
 
 IronmanChecker_CreateFrame()
