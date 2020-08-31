@@ -30,14 +30,15 @@ if ! git diff --quiet; then
     exit 1
 fi
 
-sed -i "s/$current_version/$new_version/g" $TOC_FILE
+sed -i "s/$current_version/$new_version/g" "$TOC_FILE"
 
-tag="v$new_version"
+tag="$new_version"
+git add "$TOC_FILE"
 git commit -m "Bumping version $new_version"
 git tag -a "$tag" -m "$tag"
 
 echo "Bump commit added:"
-git log -p HEAD
+git log -p -n1
 
 echo "Review and run:"
-echo "git push && git push origin v$new_version"
+echo "git push && git push origin $tag"
