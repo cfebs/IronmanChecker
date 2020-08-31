@@ -143,7 +143,7 @@ function IronmanChecker_Util:check_aura()
         if aura_name == nil then
             break
         end
-        print('  ' .. aura_name)
+        self.debug('  ' .. aura_name)
         all_helpful[aura_name] = 1
     end
 
